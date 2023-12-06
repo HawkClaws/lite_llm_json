@@ -6,12 +6,7 @@ from typing import Dict
 
 
 class LiteLLMJson:
-    BASE_PROMPT = """
-## Instructions:
-{instructions}
-
-{constraint_header}
-{constraint}
+    BASE_PROMPT = """{query_prompt}
 
 ## Response Format:
 
@@ -44,30 +39,24 @@ Respond strictly in **JSON**. The response should adhere to the following JSON s
         # Set the JSON schema attribute
         self.json_schema = json_schema
 
-    def generate_prompt(self, instructions: str, constraint: str=None) -> str:
+    def generate_prompt(self, query_prompt: str) -> str:
         """
-        Generate a prompt string.
+        Generate a prompt for the given query prompt.
 
         Args:
-            instructions: The instructions string.
-            constraint: The constraint string.
+            query_prompt (str): The query prompt.
 
         Returns:
-            The generated prompt string.
+            str: The generated prompt.
         """
-
-        constraint_header = "## Constraint:"
-        if constraint is None:
-            constraint_header = ""
-            constraint = ""
-
+        # Convert the JSON schema to a string
         json_schema_str = json.dumps(
             self.json_schema, ensure_ascii=False, indent=2
         )
+
+        # Format the prompt string with the query prompt and JSON schema
         return self.BASE_PROMPT.format(
-            instructions=instructions,
-            constraint_header=constraint_header,
-            constraint=constraint,
+            query_prompt=query_prompt,
             json_schema=json_schema_str
         )
 

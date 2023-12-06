@@ -28,7 +28,8 @@ json_schema = {
 llm_json = LiteLLMJson(json_schema)
 
 # Define the query prompt
-query_prompt = "Provide information about a person."
+query_prompt = """## Instructions:
+Provide information about a person."""
 
 # Get the generated prompt
 generated_prompt = llm_json.generate_prompt(query_prompt)
