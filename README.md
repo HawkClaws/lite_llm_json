@@ -6,7 +6,7 @@ The library has functionality to cleanly extract JSON from LLM responses and gen
 
 ## Installation
 
-`pip install git+https://github.com/HawkClaws/lite_llm_json.git`
+`pip install LiteLLMJson`
 
 ## HowToUse
 

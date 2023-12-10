@@ -1,7 +1,7 @@
 import json
 import re
 import jsonschema
-from jsonschema.exceptions import SchemaError
+from jsonschema.exceptions import SchemaError, ValidationError
 from typing import Dict
 
 
@@ -33,7 +33,7 @@ Respond strictly in **JSON**. The response should adhere to the following JSON s
             jsonschema.validate({}, json_schema)
         except SchemaError as e:
             raise e
-        except Exception:
+        except ValidationError:
             pass
 
         # Set the JSON schema attribute
@@ -50,14 +50,11 @@ Respond strictly in **JSON**. The response should adhere to the following JSON s
             str: The generated prompt.
         """
         # Convert the JSON schema to a string
-        json_schema_str = json.dumps(
-            self.json_schema, ensure_ascii=False, indent=2
-        )
+        json_schema_str = json.dumps(self.json_schema, ensure_ascii=False, indent=2)
 
         # Format the prompt string with the query prompt and JSON schema
         return self.BASE_PROMPT.format(
-            query_prompt=query_prompt,
-            json_schema=json_schema_str
+            query_prompt=query_prompt, json_schema=json_schema_str
         )
 
     def parse_response(self, response: str) -> Dict:
@@ -91,4 +88,3 @@ Respond strictly in **JSON**. The response should adhere to the following JSON s
             return json.loads(response_content)
         except BaseException as e:
             return {}
-
