@@ -84,6 +84,8 @@ Respond strictly in **JSON**. The response should adhere to the following JSON s
             match = re.search(json_pattern, response_content)
             if match:
                 response_content = match.group()
+                
+        response_content = re.sub(r'[\x00-\x1f\x7f-\x9f]', '', response_content)
         try:
             return json.loads(response_content)
         except BaseException as e:
