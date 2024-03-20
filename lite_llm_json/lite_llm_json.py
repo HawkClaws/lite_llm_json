@@ -68,25 +68,31 @@ Respond strictly in **JSON**. The response should adhere to the following JSON s
             Dict: The parsed response as a dictionary.
 
         """
-        json_data = self._extract_dict_from_response(response)
+        json_data = self._extract_data_from_response(response)
         jsonschema.validate(json_data, self.json_schema)
         return json_data
 
-    def _extract_dict_from_response(self, response_content: str):
-        # Sometimes the response includes the JSON in a code block with ```
-        pattern = r"```([\s\S]*?)```"
+    def _extract_data_from_response(self, response_content: str):
+        # Sometimes the response includes the JSON in a code block with ``` pattern
+        pattern = r"\`\`\`(\[?\{?\\s\\S\]\*?)\`\`\`"
         match = re.search(pattern, response_content)
         if match:
             response_content = match.group(1).strip()
             response_content = response_content.lstrip("json")
         else:
-            json_pattern = r"{.*}"
+            json_pattern = r"[\[\{].\*?[\]\}]"
             match = re.search(json_pattern, response_content)
             if match:
                 response_content = match.group()
-                
-        response_content = re.sub(r'[\x00-\x1f\x7f-\x9f]', '', response_content)
+            response_content = re.sub(r'[\x00-\x1f\x7f-\x9f]', '', response_content)
+
         try:
-            return json.loads(response_content)
-        except BaseException as e:
+            data = json.loads(response_content)
+            if isinstance(data, dict):
+                return data
+            elif isinstance(data, list):
+                return data
+            else:
+                return {}
+        except (ValueError, TypeError):
             return {}
