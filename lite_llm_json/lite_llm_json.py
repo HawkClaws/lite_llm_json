@@ -74,23 +74,20 @@ Respond strictly in **JSON**. The response should adhere to the following JSON s
 
     def _extract_data_from_response(self, response_content: str):
         # Sometimes the response includes the JSON in a code block with ``` pattern
-        pattern = r"```(?:json)?\s*(\{.*?\}|\\[.*?\\])\s*```"
+        pattern = r"```(?:json)?\s*(\[.*?\]|{.*?}|\\[.*?\\]|\\{.*?\\})\s*```"
         match = re.search(pattern, response_content, re.DOTALL)
         if match:
             response_content = match.group(1).strip()
         else:
-            json_pattern = r"\{.*?\}|\[.*?\]"
+            json_pattern = r"\s*(\[.*?\]|{.*?}|\\[.*?\\]|\\{.*?\\})\s*"
             match = re.search(json_pattern, response_content, re.DOTALL)
             if match:
-                response_content = match.group()
-            response_content = re.sub(r'[\x00-\x1f\x7f-\x9f]', '', response_content)
-        try:
-            data = json.loads(response_content)
-            if isinstance(data, dict):
-                return data
-            elif isinstance(data, list):
-                return data
+                response_content = match.group(1)
             else:
                 return {}
+        try:
+            data = json.loads(response_content)
+            return data
         except (ValueError, TypeError):
             return {}
+
