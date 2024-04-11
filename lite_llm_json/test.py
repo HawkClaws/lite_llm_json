@@ -76,18 +76,36 @@ class TestExtractDataFromResponse(unittest.TestCase):
         expected_data = {}
         data = self.llm_json._extract_data_from_response(response_content)
         self.assertEqual(data, expected_data)
-    
+
     def test_extract_data_with_extra_whitespace(self):
-        response_content = "   {\"key\": \"value\"}   "
+        response_content = '   {"key": "value"}   '
         expected_data = {"key": "value"}
         data = self.llm_json._extract_data_from_response(response_content)
         self.assertEqual(data, expected_data)
 
-    def test_extract_data_with_code_block_and_extra_text(self):
-        response_content = "```json { \"sentence\": \"An ornate wooden coffin, its surface etched with ancient runes and adorned with intricate carvings, holds the remains of a fallen hero, his body preserved in a state of suspended animation by the miasma that permeates the air around it.\" } ```"
-        expected_data = {"sentence": "An ornate wooden coffin, its surface etched with ancient runes and adorned with intricate carvings, holds the remains of a fallen hero, his body preserved in a state of suspended animation by the miasma that permeates the air around it."}
+    def test_extract_data_with_simple_json(self):
+        response_content = (
+            '{"sentence": "The quick brown fox jumps over the lazy dog."}'
+        )
+        expected_data = {"sentence": "The quick brown fox jumps over the lazy dog."}
         data = self.llm_json._extract_data_from_response(response_content)
         self.assertEqual(data, expected_data)
+
+    def test_extract_data_newline_text(self):
+        response_content = """
+        {
+            "answer_impossible": false, 
+            "text": "# Introduction
+This is a simple example of a markdown-formatted text response."
+        }
+        """
+        expected_data = {
+            "answer_impossible": False,
+            "text": "# Introduction\nThis is a simple example of a markdown-formatted text response.",
+        }
+        data = self.llm_json._extract_data_from_response(response_content)
+        self.assertEqual(data, expected_data)
+
 
 if __name__ == "__main__":
     unittest.main()

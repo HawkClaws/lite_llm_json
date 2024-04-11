@@ -11,7 +11,8 @@ class LiteLLMJson:
 ## Response Format:
 
 Respond strictly in **JSON**. The response should adhere to the following JSON schema:
-```
+
+```JSON schema
 {json_schema}
 ```
 
@@ -86,8 +87,9 @@ Respond strictly in **JSON**. The response should adhere to the following JSON s
             else:
                 return {}
         try:
-            data = json.loads(response_content)
+            data = json.loads(response_content, strict=False)
             return data
-        except (ValueError, TypeError):
+        except Exception as e:
+            print(e)
             return {}
 

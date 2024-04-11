@@ -7,7 +7,7 @@ DESCRIPTION = "This library offers functionality to cleanly extract JSON from LL
 
 setup(
     name="LiteLLMJson",
-    version="0.0.5",
+    version="0.0.6",
     author="HawkClaws",
     packages=find_packages(),
     install_requires=[
