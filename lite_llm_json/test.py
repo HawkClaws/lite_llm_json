@@ -13,7 +13,6 @@ class TestLiteLLMJson(unittest.TestCase):
         llm_json = LiteLLMJson(json_schema)
         query_prompt = "Provide information about a person."
         generated_prompt = llm_json.generate_prompt(query_prompt)
-        print(generated_prompt)
         # Add your assertion here based on the expected output of generate_prompt
         self.assertIn("name", generated_prompt)
         self.assertIn("age", generated_prompt)
@@ -27,7 +26,6 @@ class TestLiteLLMJson(unittest.TestCase):
         llm_json = LiteLLMJson(json_schema)
         valid_response = '{"name": "John Doe", "age": 30}'
         parsed_response = llm_json.parse_response(valid_response)
-        print(parsed_response)
 
         self.assertIsInstance(parsed_response, dict)
         self.assertEqual(parsed_response["name"], "John Doe")
@@ -55,6 +53,16 @@ class TestExtractDataFromResponse(unittest.TestCase):
 
     def test_extract_data_from_code_block_with_json_prefix(self):
         response_content = '```json\n{"key": "value"}\n```'
+        expected_data = {"key": "value"}
+        data = self.llm_json._extract_data_from_response(response_content)
+        self.assertEqual(data, expected_data)
+
+    def test_extract_data_from_code_block_with_JSON_prefix(self):
+        response_content ="""```JSON
+{
+  "key": "value"
+}
+```"""
         expected_data = {"key": "value"}
         data = self.llm_json._extract_data_from_response(response_content)
         self.assertEqual(data, expected_data)
@@ -92,7 +100,7 @@ class TestExtractDataFromResponse(unittest.TestCase):
         self.assertEqual(data, expected_data)
 
     def test_extract_data_newline_text(self):
-        response_content = """
+        response_content = """4
         {
             "answer_impossible": false, 
             "text": "# Introduction

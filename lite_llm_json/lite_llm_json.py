@@ -73,23 +73,22 @@ Respond strictly in **JSON**. The response should adhere to the following JSON s
         jsonschema.validate(json_data, self.json_schema)
         return json_data
 
-    def _extract_data_from_response(self, response_content: str):
-        # Sometimes the response includes the JSON in a code block with ``` pattern
-        pattern = r"```(?:json)?\s*(\[.*?\]|{.*?}|\\[.*?\\]|\\{.*?\\})\s*```"
-        match = re.search(pattern, response_content, re.DOTALL)
-        if match:
-            response_content = match.group(1).strip()
-        else:
-            json_pattern = r"\s*(\[.*?\]|{.*?}|\\[.*?\\]|\\{.*?\\})\s*"
-            match = re.search(json_pattern, response_content, re.DOTALL)
-            if match:
-                response_content = match.group(1)
-            else:
-                return {}
-        try:
-            data = json.loads(response_content, strict=False)
-            return data
-        except Exception as e:
-            print(e)
-            return {}
-
+    def _extract_data_from_response(self, text: str, decoder=json.JSONDecoder(strict=False), symbols=('{', '[')):
+        """Find JSON objects and arrays in text, load the JSON data, and return the loaded data as a list"""
+        pos = 0
+        while True:
+            matches = {symbol: text.find(symbol, pos) for symbol in symbols}
+            matches = {k: v for k, v in matches.items() if v != -1}
+            if not matches:
+                break
+            match_symbol, match_pos = min(matches.items(), key=lambda item: item[1])
+            try:
+                result, index = decoder.raw_decode(text[match_pos:])
+                if match_symbol == '{':
+                    return json.loads(json.dumps(result))
+                elif match_symbol == '[':
+                    return json.loads(json.dumps(result))
+                pos = match_pos + index
+            except ValueError:
+                pos = match_pos + 1
+        return {}
